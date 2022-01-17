@@ -7,9 +7,6 @@ const pool = mysql.createPool({
 	database: config.database.name,
 	user: config.database.username,
 	password: config.database.password,
-	charset: config.database.charset,
-	connectionLimit: parseInt(config.database.limit),
-	connectTimeout: parseInt(config.database.timeout),
 });
 
 module.exports = pool;

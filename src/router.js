@@ -4,7 +4,6 @@ const UserRoutes = require('./routes/user')
 const AuthRoutes = require('./routes/auth')
 const DeckRouter = require('./routes/deck');
 const ExerciseRouter = require('./routes/exercise');
-const UserRoutes = require('./routes/user');
 const WorkoutRouter = require('./routes/workout');
 
 function initialize() {
@@ -13,7 +12,6 @@ function initialize() {
 	api.use('/public', express.static('public'));
 	api.use('/user', UserRoutes());
 	api.use('/auth', AuthRoutes());
-
 	api.use('/deck', DeckRouter());
 	api.use('/exercise', ExerciseRouter());
 	api.use('/workout', WorkoutRouter());
