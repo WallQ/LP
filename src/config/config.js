@@ -16,8 +16,8 @@ const config = {
 	},
 	production: {
 		server: {
-			host: process.env.PROD_SERVER_HOST || '127.0.0.1',
-			port: process.env.PROD_SERVER_PORT || 3000,
+			host: process.env.PROD_SERVER_HOST || 'dwdm-lp-flg-api.azurewebsites.net',
+			port: process.env.PROD_SERVER_PORT || 8080,
 		},
 		database: {
 			host: process.env.PROD_DATABASE_HOST || 'dwdm-lp-flg-sv.mysql.database.azure.com',
