@@ -1,0 +1,38 @@
+{
+	"name": "lp-project",
+	"version": "1.0.0",
+	"description": "This is an evaluation project for the unit LP.",
+	"main": "./src/server.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"start": "nodemon server.js",
+		"dev": "cross-env NODE_ENV=development nodemon server.js",
+		"prod": "cross-env NODE_ENV=production server.js"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/brunojosue/LP.git"
+	},
+	"keywords": [
+		"NodeJs",
+		"MySQL"
+	],
+	"author": "DWDM",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/brunojosue/LP/issues"
+	},
+	"dependencies": {
+		"bcrypt": "^5.0.1",
+		"cookie-parser": "^1.4.6",
+		"cors": "^2.8.5",
+		"dotenv": "^10.0.0",
+		"express": "^4.17.2",
+		"jsonwebtoken": "^8.5.1",
+		"mysql": "^2.18.1"
+	},
+	"devDependencies": {
+		"cross-env": "^7.0.3",
+		"nodemon": "^2.0.15"
+	}
+}
