@@ -52,5 +52,5 @@ jobs:
         with:
           app-name: 'dwdm-lp-flg-api'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_E734FC098DEC49659249C5BB2DF1914B }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_D7DE1631AE91426490F51228A7AE604F }}
           package: .
