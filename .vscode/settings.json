@@ -1,4 +1,8 @@
 {
     "appService.defaultWebAppToDeploy": "/subscriptions/77a4aac0-00a2-41c2-9ee4-9a0bf06e4dae/resourceGroups/appsvc_linux_centralus_basic/providers/Microsoft.Web/sites/dwdm-lp-flg-api",
-    "appService.deploySubpath": "."
+    "appService.deploySubpath": ".",
+    "appService.zipIgnorePattern": [
+        "node_modules{,/**}",
+        ".vscode{,/**}"
+    ]
 }
