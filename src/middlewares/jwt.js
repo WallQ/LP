@@ -1,0 +1,16 @@
+const config = require('../config/config')[process.env.NODE_ENV || 'development'];
+const jwt = require('jsonwebtoken');
+
+const verifyJWT = (req, res, next) => {
+	const token = req.cookies.token || req.headers['x-access-token'];
+	if (!token) return res.status(200).send({ status: 401, auth: false, message: 'Your token provided is invalid or has expired.' });
+	jwt.verify(token, config.jsonwebtoken.secret, (err, decoded) => {
+		if (err) return res.status(200).send({ status: 401, auth: false, message: 'Your token provided is invalid or has expired.' });
+		req.id = decoded.id;
+		req.email = decoded.email;
+		req.role = decoded.role;
+		next();
+	});
+};
+
+module.exports = verifyJWT;

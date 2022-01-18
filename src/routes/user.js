@@ -9,12 +9,44 @@ function UserRouter() {
 	router.route('/').get(async (req, res, next) => {
 		pool.getConnection((error, connection) => {
 			if (error) console.error(error);
-			const query = 'SELECT * FROM users';
+			const query = 'SELECT * FROM user';
 			connection.query(query, (error, results) => {
 				connection.release();
 				if (error) console.error(error);
-				if (!results) res.status(200).send({ tatus: 404, message: 'Users unsuccessfully found!', data: [] });
-				res.status(200).send({ status: 200, message: 'Users successfully found!', data: results });
+				if (!results && !results.length) return res.status(200).send({ status: 404, message: 'Users unsuccessfully found!', data: [] });
+				return res.status(200).send({ status: 200, message: 'Users successfully found!', data: results });
+			});
+		});
+	});
+
+	router.route('/:id').get(async (req, res, next) => {
+		pool.getConnection((error, connection) => {
+			if (error) console.error(error);
+			const data = {
+				iduser: req.params.id,
+			};
+			const query = 'SELECT * FROM user WHERE iduser = ?';
+			connection.query(query, Object.values(data), (error, results) => {
+				connection.release();
+				if (error) console.error(error);
+				if (!results && !results.length) return res.status(200).send({ status: 404, message: 'User unsuccessfully found!', data: [] });
+				return res.status(200).send({ status: 200, message: 'User successfully found!', data: results });
+			});
+		});
+	});
+
+	router.route('/email/:email').get(async (req, res, next) => {
+		pool.getConnection((error, connection) => {
+			if (error) console.error(error);
+			const data = {
+				email: req.body.email,
+			};
+			const query = 'SELECT * FROM user WHERE email = ?';
+			connection.query(query, Object.values(data), (error, results) => {
+				connection.release();
+				if (error) console.error(error);
+				if (!results && !results.length) return res.status(200).send({ status: 404, message: 'User unsuccessfully found!', data: [] });
+				return res.status(200).send({ status: 200, message: 'User successfully found!', data: results });
 			});
 		});
 	});
@@ -28,12 +60,12 @@ function UserRouter() {
 				password: req.body.password,
 				phone_number: req.body.phone,
 			};
-			const query = 'INSERT INTO users (name,email,password,phone_number) VALUES (?,?,?,?)';
+			const query = 'INSERT INTO user (name,email,password,phone_number) VALUES (?,?,?,?)';
 			connection.query(query, Object.values(data), (error, results) => {
 				connection.release();
 				if (error) console.error(error);
-				if (!results) res.status(200).send({ status: 400, message: 'User unsuccessfully created!', data: [] });
-				res.status(200).send({ status: 201, message: 'User successfully created!', data: results });
+				if (results && results.affectedRows === 0) return res.status(200).send({ status: 400, message: 'User unsuccessfully created!', data: [] });
+				return res.status(200).send({ status: 201, message: 'User successfully created!', data: results });
 			});
 		});
 	});
@@ -45,14 +77,15 @@ function UserRouter() {
 				name: req.body.name,
 				email: req.body.email,
 				password: req.body.password,
-				phone_number: req.body.phone,
-				idusers: req.params.id,
+				role: req.body.role,
+				phoneNumber: req.body.phone,
+				iduser: req.params.id,
 			};
-			const query = 'UPDATE users SET name = ?, email = ?, password = ?, phone_number = ? WHERE idusers = ?';
+			const query = 'UPDATE user SET name = ?, email = ?, password = ?, role = ?, phoneNumber = ? WHERE iduser = ?';
 			connection.query(query, Object.values(data), (error, results) => {
 				connection.release();
 				if (error) console.error(error);
-				if (!results) res.status(200).send({ status: 400, message: 'User unsuccessfully updated!', data: [] }); 
+				if (results && results.changedRows === 0) res.status(200).send({ status: 400, message: 'User unsuccessfully updated!', data: [] }); 
 				res.status(200).send({ status: 200, message: 'User successfully updated!', data: results }); 
 			});
 		});
@@ -62,13 +95,13 @@ function UserRouter() {
 		pool.getConnection((error, connection) => {
 			if (error) console.error(error);
 			const data = {
-				idusers: req.params.id,
+				iduser: req.params.id,
 			};
-			const query = 'DELETE FROM users WHERE idusers = ?';
+			const query = 'DELETE FROM users WHERE iduser = ?';
 			connection.query(query, Object.values(data), (error, results) => {
 				connection.release();
 				if (error) console.error(error);
-				if (!results) res.status(200).send({ status: 400, message: 'User unsuccessfully deleted!', data: [] });
+				if (results && results.affectedRows === 0) res.status(200).send({ status: 400, message: 'User unsuccessfully deleted!', data: [] });
 				res.status(200).send({ status: 200, message: 'User successfully deleted!', data: results });
 			});
 		});
