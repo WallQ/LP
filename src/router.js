@@ -2,12 +2,10 @@ const express = require('express');
 
 const UserRoutes = require('./routes/user');
 const AuthRoutes = require('./routes/auth');
-
 const WorkoutRoutes = require('./routes/workout');
 const ExerciseRoutes = require('./routes/exercise');
 const DeckRoutes = require('./routes/deck');
 const CardRoutes = require('./routes/card');
-
 
 function initialize() {
 	const api = express();
