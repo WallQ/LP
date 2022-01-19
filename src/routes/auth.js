@@ -2,6 +2,7 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const pool = require('../database');
+const verifyJWT = require('../middlewares/jwt');
 
 function AuthRouter() {
 	const router = express();
@@ -53,24 +54,12 @@ function AuthRouter() {
 		});
 	});
 
-	router.route('/sign-out').get(async (req, res, next) => {
-        return res.clearCookie('token').status(200).send({ status: 200, auth: false, message: 'Successfully signed out!'})
+	router.route('/sign-out').get(verifyJWT, async (req, res, next) => {
+        return res.clearCookie('token').status(200).send({ status: 200, auth: false, message: 'Successfully signed out!', data: [] })
 	});
 
-	router.route('/signed').get(async (req, res, next) => {
-		pool.getConnection((error, connection) => {
-			if (error) console.error(error);
-			const data = {
-				idusers: req.params.id,
-			};
-			const query = 'DELETE FROM users WHERE idusers = ?';
-			connection.query(query, Object.values(data), (error, results) => {
-				connection.release();
-				if (error) console.error(error);
-				if (!results) res.status(200).send({ status: 400, message: 'User unsuccessfully deleted!', data: [] });
-				res.status(200).send({ status: 200, message: 'User successfully deleted!', data: results });
-			});
-		});
+	router.route('/signed').get(verifyJWT, async (req, res, next) => {
+		return res.status(200).send({ status: 200, auth: true, message: 'User is currently authenticated!', data: [] })
 	});
 
 	return router;

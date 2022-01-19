@@ -1,26 +1,28 @@
 const express = require('express');
 const pool = require('../database');
+const verifyJWT = require('../middlewares/jwt');
 
 function ExerciseRouter() {
 	const router = express();
 	router.use(express.json({ limit: '100mb' }));
 	router.use(express.urlencoded({ limit: '100mb', extended: true }));
+	router.use(verifyJWT);
 
 	router.route('/').get(async (req, res, next) => {
-		pool.getConnection(function (error, connection) {
+		pool.getConnection((error, connection) => {
 			if (error) console.error(error);
 			const query = 'SELECT * FROM exercice';
 			connection.query(query, (error, results) => {
 				connection.release();
 				if (error) console.error(error);
-				if (!results) res.status(200).send({ tatus: 404, message: 'Decks unsuccessfully found!', data: [] });
-				res.status(200).send({ status: 200, message: 'Decks successfully found!', data: results });
+				if (!results) res.status(200).send({ status: 404, message: 'Exercise unsuccessfully found!', data: [] });
+				res.status(200).send({ status: 200, message: 'Exercise successfully found!', data: results });
 			});
 		});
 	});
 
 	router.route('/').post(async (req, res, next) => {
-		pool.getConnection(function (error, connection) {
+		pool.getConnection((error, connection) => {
 			if (error) console.error(error);
 			const data = {
 				idExercice: null,
@@ -38,7 +40,7 @@ function ExerciseRouter() {
 	});
 
 	router.route('/:id').put(async (req, res, next) => {
-		pool.getConnection(function (error, connection) {
+		pool.getConnection((error, connection) => {
 			if (error) console.error(error);
 			const data = {
 				name: req.body.name,
@@ -56,7 +58,7 @@ function ExerciseRouter() {
 	});
 
 	router.route('/:id').delete(async (req, res, next) => {
-		pool.getConnection(function (error, connection) {
+		pool.getConnection((error, connection) => {
 			if (error) console.error(error);
 			const data = {
 				idExercice: req.params.id,

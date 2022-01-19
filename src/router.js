@@ -2,12 +2,12 @@ const express = require('express');
 
 const UserRoutes = require('./routes/user');
 const AuthRoutes = require('./routes/auth');
+
+const WorkoutRoutes = require('./routes/workout');
+const ExerciseRoutes = require('./routes/exercise');
+const DeckRoutes = require('./routes/deck');
 const CardRoutes = require('./routes/card');
 
-
-const DeckRouter = require('./routes/deck');
-const ExerciseRouter = require('./routes/exercise');
-const WorkoutRouter = require('./routes/workout');
 
 function initialize() {
 	const api = express();
@@ -15,11 +15,10 @@ function initialize() {
 	api.use('/public', express.static('public'));
 	api.use('/user', UserRoutes());
 	api.use('/auth', AuthRoutes());
+	api.use('/workout', WorkoutRoutes());
+	api.use('/exercise', ExerciseRoutes());
+	api.use('/deck', DeckRoutes());
 	api.use('/card', CardRoutes());
-
-	api.use('/deck', DeckRouter());
-	api.use('/exercise', ExerciseRouter());
-	api.use('/workout', WorkoutRouter());
 
 	return api;
 }
