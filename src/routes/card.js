@@ -1,5 +1,6 @@
 const express = require('express');
 const pool = require('../database');
+const { connectionException, queryException } = require('../exceptions/database');
 const verifyJWT = require('../middlewares/jwt');
 
 function CardRouter() {
@@ -10,11 +11,11 @@ function CardRouter() {
 
 	router.route('/').get(async (req, res, next) => {
 		pool.getConnection((error, connection) => {
-			if (error) console.error(error);
+			if (error) return next(new connectionException());
 			const query = 'SELECT * FROM card';
 			connection.query(query, (error, results) => {
 				connection.release();
-				if (error) console.error(error);
+				if (error) return next(new queryException(error));
 				if (results && !results.length) return res.status(200).send({ status: 404, message: 'Cards unsuccessfully found!', data: [] });
 				return res.status(200).send({ status: 200, message: 'Cards successfully found!', data: results });
 			});
@@ -23,11 +24,11 @@ function CardRouter() {
 
 	router.route('/:id').get(async (req, res, next) => {
 		pool.getConnection((error, connection) => {
-			if (error) console.error(error);
+			if (error) return next(new connectionException());
 			const query = 'SELECT * FROM card WHERE idcard = ?';
 			connection.query(query, Object.values({idcard:req.params.id}), (error, results) => {
 				connection.release();
-				if (error) console.error(error);
+				if (error) return next(new queryException(error));
 				if (results && !results.length) return res.status(200).send({ status: 404, message: 'Card unsuccessfully found!', data: [] });
 				return res.status(200).send({ status: 200, message: 'Card successfully found!', data: results });
 			});
@@ -36,7 +37,7 @@ function CardRouter() {
 
 	router.route('/').post(async (req, res, next) => {
 		pool.getConnection((error, connection) => {
-			if (error) console.error(error);
+			if (error) return next(new connectionException());
 			const data = {
 				deck_iddeck: req.body.id,
 				value: req.body.value,
@@ -46,7 +47,7 @@ function CardRouter() {
 			const query = 'INSERT INTO card VALUES (?,?,?,?)';
 			connection.query(query, Object.values(data), (error, results) => {
 				connection.release();
-				if (error) console.error(error);
+				if (error) return next(new queryException(error));
 				if (results && results.affectedRows === 0) return res.status(200).send({ status: 400, message: 'Card unsuccessfully created!', data: [] });
 				return res.status(200).send({ status: 201, message: 'Card successfully created!', data: results });
 			});
@@ -55,7 +56,7 @@ function CardRouter() {
 
 	router.route('/:id').put(async (req, res, next) => {
 		pool.getConnection((error, connection) => {
-			if (error) console.error(error);
+			if (error) return next(new connectionException());
 			const data = {
 				deck_iddeck: req.body.deckId,
 				value: req.body.value,
@@ -66,7 +67,7 @@ function CardRouter() {
 			const query = 'UPDATE card SET deck_iddeck = ?, value = ?, description = ?, imagePath = ? WHERE idcard = ?';
 			connection.query(query, Object.values(data), (error, results) => {
 				connection.release();
-				if (error) console.error(error);
+				if (error) return next(new queryException(error));
 				if (results && results.changedRows === 0) return res.status(200).send({ status: 400, message: 'Card unsuccessfully updated!', data: [] });
 				return res.status(200).send({ status: 200, message: 'Card successfully updated!', data: results });
 			});
@@ -75,11 +76,11 @@ function CardRouter() {
 
 	router.route('/:id').delete(async (req, res, next) => {
 		pool.getConnection((error, connection) => {
-			if (error) console.error(error);
+			if (error) return next(new connectionException());
 			const query = 'DELETE FROM card WHERE idcard = ?';
 			connection.query(query, Object.values({idcard: req.params.id}), (error, results) => {
 				connection.release();
-				if (error) console.error(error);
+				if (error) return next(new queryException(error));
 				if (results && results.affectedRows === 0) return res.status(200).send({ status: 400, message: 'Card unsuccessfully deleted!', data: [] });
 				return res.status(200).send({ status: 200, message: 'Card successfully deleted!', data: results });
 			});
