@@ -1,6 +1,7 @@
 const express = require('express');
 const pool = require('../database');
 const { connectionException, queryException } = require('../exceptions/database');
+const { idException } = require('../exceptions/id');
 const verifyJWT = require('../middlewares/jwt');
 
 function CardRouter() {
@@ -23,10 +24,11 @@ function CardRouter() {
 	});
 
 	router.route('/:id').get(async (req, res, next) => {
+		if (Number.isNaN(Number.parseInt(req.params.id))) return next(new idException());
 		pool.getConnection((error, connection) => {
 			if (error) return next(new connectionException());
 			const query = 'SELECT * FROM card WHERE idcard = ?';
-			connection.query(query, Object.values({idcard:req.params.id}), (error, results) => {
+			connection.query(query, Object.values({ idcard:req.params.id }), (error, results) => {
 				connection.release();
 				if (error) return next(new queryException(error));
 				if (results && !results.length) return res.status(200).send({ status: 404, message: 'Card unsuccessfully found!', data: [] });
@@ -55,6 +57,7 @@ function CardRouter() {
 	});
 
 	router.route('/:id').put(async (req, res, next) => {
+		if (Number.isNaN(Number.parseInt(req.params.id))) return next(new idException());
 		pool.getConnection((error, connection) => {
 			if (error) return next(new connectionException());
 			const data = {
@@ -75,6 +78,7 @@ function CardRouter() {
 	});
 
 	router.route('/:id').delete(async (req, res, next) => {
+		if (Number.isNaN(Number.parseInt(req.params.id))) return next(new idException());
 		pool.getConnection((error, connection) => {
 			if (error) return next(new connectionException());
 			const query = 'DELETE FROM card WHERE idcard = ?';

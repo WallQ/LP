@@ -13,27 +13,10 @@ function AuthRouter() {
 	router.use(express.urlencoded({ limit: '100mb', extended: true }));
 
 	router.route('/sign-up').post(
-		body('name')
-			.notEmpty()
-			.withMessage('Name cannot be empty!'),
-		body('email')
-			.notEmpty()
-			.withMessage('Email cannot be empty!')
-			.bail()
-			.isEmail()
-			.withMessage('You must provide a valid email address!'),
-		body('password')
-			.notEmpty()
-			.withMessage('Password cannot be empty!')
-			.bail()
-			.isLength({ min: 6, max: 18 })
-			.withMessage('Password must be at least 8 characters and max 18 characters long!'),
-		body('phone')
-			.notEmpty()
-			.withMessage('Phone number cannot be empty!')
-			.bail()
-			.isLength({ min: 9, max: 9 })
-			.withMessage('Phone number must be at least 8 numbers long!'),
+		body('name').trim().notEmpty().withMessage('Name cannot be empty!'),
+		body('email').trim().notEmpty().withMessage('Email cannot be empty!').bail().normalizeEmail().isEmail().withMessage('You must provide a valid email address!'),
+		body('password').trim().notEmpty().withMessage('Password cannot be empty!').bail().isLength({ min: 6, max: 18 }).withMessage('Password must be at least 8 characters and max 18 characters long!'),
+		body('phone').trim().notEmpty().withMessage('Phone number cannot be empty!').bail().isLength({ min: 9, max: 9 }).withMessage('Phone number must be at least 8 numbers long!'),
 		async (req, res, next) => {
 			const errors = validationResult(req);
 			if (!errors.isEmpty()) return next(new inputException(errors.array()));
@@ -61,25 +44,28 @@ function AuthRouter() {
 			});
 		});
 
-	router.route('/sign-in').post(async (req, res, next) => {
-		pool.getConnection(async (error, connection) => {
-			if (error) return next(new connectionException());
-			const data = {
-				email: req.body.email,
-				password: req.body.password,
-			};
-			const query = 'SELECT * FROM user WHERE email = ?';
-			connection.query(query, Object.values(data), async (error, results) => {
-				connection.release();
-				if (error) return next(new queryException(error));
-				if (results && !results.length) return res.status(200).send({ status: 400, auth: false, path: req.originalUrl, message: 'Email address not registered!', data: [] });
-                const match = await bcrypt.compare(data.password, results[0].password);
-                if(!match) return res.status(200).send({ status: 400, auth: false, path: req.originalUrl, message: 'Email or password are wrong!', data: [] });
-                const token = jwt.sign({ id: results[0].iduser, email: data.email, role: results[0].role }, 'DWDM-LP-FLG@2122', { algorithm: 'HS256' }, { expiresIn: 1800000 });
-				return res.cookie('token', token, { maxAge: 1800000, expires: new Date(Date.now() + 1800000), httpOnly: true }).status(200).send({ status: 200, auth: true, path: req.originalUrl, message: 'Successfully signed in!', data: token });
+	router.route('/sign-in').post(
+		body('email').trim().notEmpty().withMessage('Email cannot be empty!').bail().normalizeEmail().isEmail().withMessage('You must provide a valid email address!'),
+		body('password').trim().notEmpty().withMessage('Password cannot be empty!').bail().isLength({ min: 6, max: 18 }).withMessage('Password must be at least 8 characters and max 18 characters long!'),
+		async (req, res, next) => {
+			pool.getConnection(async (error, connection) => {
+				if (error) return next(new connectionException());
+				const data = {
+					email: req.body.email,
+					password: req.body.password,
+				};
+				const query = 'SELECT * FROM user WHERE email = ?';
+				connection.query(query, Object.values(data), async (error, results) => {
+					connection.release();
+					if (error) return next(new queryException(error));
+					if (results && !results.length) return res.status(200).send({ status: 400, auth: false, path: req.originalUrl, message: 'Email address not registered!', data: [] });
+					const match = await bcrypt.compare(data.password, results[0].password);
+					if(!match) return res.status(200).send({ status: 400, auth: false, path: req.originalUrl, message: 'Email or password are wrong!', data: [] });
+					const token = jwt.sign({ id: results[0].iduser, email: data.email, role: results[0].role }, 'DWDM-LP-FLG@2122', { algorithm: 'HS256' }, { expiresIn: 1800000 });
+					return res.cookie('token', token, { maxAge: 1800000, expires: new Date(Date.now() + 1800000), httpOnly: true }).status(200).send({ status: 200, auth: true, path: req.originalUrl, message: 'Successfully signed in!', data: token });
+				});
 			});
 		});
-	});
 
 	router.route('/sign-out').get(verifyJWT, async (req, res, next) => {
         return res.clearCookie('token').status(200).send({ status: 200, auth: false, message: 'Successfully signed out!', data: [] })

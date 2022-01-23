@@ -1,6 +1,7 @@
 const express = require('express');
 const pool = require('../database');
 const { connectionException, queryException } = require('../exceptions/database');
+const { idException } = require('../exceptions/id');
 const verifyJWT = require('../middlewares/jwt');
 
 function WorkoutRouter() {
@@ -23,10 +24,11 @@ function WorkoutRouter() {
 	});
 
 	router.route('/:id').get(async (req, res, next) => {
+		if (Number.isNaN(Number.parseInt(req.params.id))) return next(new idException());
 		pool.getConnection((error, connection) => {
 			if (error) return next(new connectionException());
 			const query = 'SELECT * FROM workout WHERE idworkout = ?';
-			connection.query(query, Object.values({idworkout:req.params.id}), (error, results) => {
+			connection.query(query, Object.values({ idworkout:req.params.id }), (error, results) => {
 				connection.release();
 				if (error) return next(new queryException(error));
 				if (results && !results.length) return res.status(200).send({ status: 404, message: 'Workout unsuccessfully found!', data: [] });
@@ -39,7 +41,7 @@ function WorkoutRouter() {
 		pool.getConnection((error, connection) => {
 			if (error) return next(new connectionException());
 			const query = 'SELECT * FROM workout WHERE name = ?';
-			connection.query(query, Object.values({name: req.body.name}), (error, results) => {
+			connection.query(query, Object.values({ name: req.body.name }), (error, results) => {
 				connection.release();
 				if (error) return next(new queryException(error));
 				if (results && !results.length) return res.status(200).send({ status: 404, message: 'Workout unsuccessfully found!', data: [] });
@@ -66,6 +68,7 @@ function WorkoutRouter() {
 	});
 
 	router.route('/:id').put(async (req, res, next) => {
+		if (Number.isNaN(Number.parseInt(req.params.id))) return next(new idException());
 		pool.getConnection((error, connection) => {
 			if (error) return next(new connectionException());
 			const data = {
@@ -84,10 +87,11 @@ function WorkoutRouter() {
 	});
 
 	router.route('/:id').delete(async (req, res, next) => {
+		if (Number.isNaN(Number.parseInt(req.params.id))) return next(new idException());
 		pool.getConnection((error, connection) => {
 			if (error) return next(new connectionException());
 			const query = 'DELETE FROM workout WHERE idworkout = ?';
-			connection.query(query, Object.values({idworkout: req.params.id}), (error, results) => {
+			connection.query(query, Object.values({ idworkout: req.params.id }), (error, results) => {
 				connection.release();
 				if (error) return next(new queryException(error));
 				if (results && results.affectedRows === 0) return res.status(200).send({ status: 400, message: 'Workout unsuccessfully deleted!', data: [] });

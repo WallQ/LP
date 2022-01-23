@@ -4,6 +4,7 @@ const pool = require('../database');
 const { connectionException, queryException } = require('../exceptions/database');
 const { idException } = require('../exceptions/id');
 const verifyJWT = require('../middlewares/jwt');
+const verifyROLE = require('../middlewares/role');
 
 function UserRouter() {
 	const router = express();
@@ -11,7 +12,7 @@ function UserRouter() {
 	router.use(express.urlencoded({ limit: '100mb', extended: true }));
 	router.use(verifyJWT);
 
-	router.route('/').get(async (req, res, next) => {
+	router.route('/').get(verifyROLE('Admin'), async (req, res, next) => {
 		pool.getConnection((error, connection) => {
 			if (error) return next(new connectionException());
 			const query = 'SELECT iduser, name, phoneNumber, email, role FROM user';
@@ -24,7 +25,7 @@ function UserRouter() {
 		});
 	});
 
-	router.route('/:id').get(async (req, res, next) => {
+	router.route('/:id').get(verifyROLE('Admin','User'), async (req, res, next) => {
 		if (Number.isNaN(Number.parseInt(req.params.id))) return next(new idException());
 		pool.getConnection((error, connection) => {
 			if (error) return next(new connectionException());
@@ -38,7 +39,7 @@ function UserRouter() {
 		});
 	});
 
-	router.route('/email/:email').get(async (req, res, next) => {
+	router.route('/email/:email').get(verifyROLE('Admin'), async (req, res, next) => {
 		pool.getConnection((error, connection) => {
 			if (error) return next(new connectionException());
 			const query = 'SELECT iduser, name, phoneNumber, email, role FROM user WHERE email = ?';
@@ -51,7 +52,7 @@ function UserRouter() {
 		});
 	});
 
-	router.route('/').post(async (req, res, next) => {
+	router.route('/').post(verifyROLE('Admin'), async (req, res, next) => {
 		pool.getConnection(async (error, connection) => {
 			if (error) return next(new connectionException());
 			const data = {
@@ -71,7 +72,7 @@ function UserRouter() {
 		});
 	});
 
-	router.route('/:id').put(async (req, res, next) => {
+	router.route('/:id').put(verifyROLE('Admin','User'), async (req, res, next) => {
 		if (Number.isNaN(Number.parseInt(req.params.id))) return next(new idException());
 		pool.getConnection((error, connection) => {
 			if (error) return next(new connectionException());
@@ -93,7 +94,7 @@ function UserRouter() {
 		});
 	});
 
-	router.route('/:id').delete(async (req, res, next) => {
+	router.route('/:id').delete(verifyROLE('Admin'), async (req, res, next) => {
 		if (Number.isNaN(Number.parseInt(req.params.id))) return next(new idException());
 		pool.getConnection((error, connection) => {
 			if (error) return next(new connectionException());

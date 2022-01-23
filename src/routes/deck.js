@@ -1,6 +1,7 @@
 const express = require('express');
 const pool = require('../database');
 const { connectionException, queryException } = require('../exceptions/database');
+const { idException } = require('../exceptions/id');
 const verifyJWT = require('../middlewares/jwt');
 
 function DeckRouter() {
@@ -23,6 +24,7 @@ function DeckRouter() {
 	});
 
 	router.route('/:id').get(async (req, res, next) => {
+		if (Number.isNaN(Number.parseInt(req.params.id))) return next(new idException());
 		pool.getConnection((error, connection) => {
 			if (error) return next(new connectionException());
 			const query = 'SELECT * FROM deck WHERE iddeck = ?';
@@ -66,6 +68,7 @@ function DeckRouter() {
 	});
 
 	router.route('/:id').put(async (req, res, next) => {
+		if (Number.isNaN(Number.parseInt(req.params.id))) return next(new idException());
 		pool.getConnection((error, connection) => {
 			if (error) return next(new connectionException());
 			const data = {
@@ -84,6 +87,7 @@ function DeckRouter() {
 	});
 
 	router.route('/:id').delete(async (req, res, next) => {
+		if (Number.isNaN(Number.parseInt(req.params.id))) return next(new idException());
 		pool.getConnection((error, connection) => {
 			if (error) return next(new connectionException());
 			const query = 'DELETE FROM deck WHERE iddeck = ?';

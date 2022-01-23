@@ -10,7 +10,7 @@ const error = (err, req, res, next) => {
 		status: status || 500,
 		path: req.originalUrl || '/',
 		message: message || 'Internal Server Error',
-		data: customErrors
+		data: customErrors || []
 	});
 };
 

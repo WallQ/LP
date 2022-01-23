@@ -1,6 +1,7 @@
 const express = require('express');
 const pool = require('../database');
 const { connectionException, queryException } = require('../exceptions/database');
+const { idException } = require('../exceptions/id');
 const verifyJWT = require('../middlewares/jwt');
 
 function ExerciseRouter() {
@@ -16,6 +17,20 @@ function ExerciseRouter() {
 			connection.query(query, (error, results) => {
 				connection.release();
 				if (error) return next(new queryException(error));
+				if (!results) res.status(200).send({ status: 404, message: 'Exercises unsuccessfully found!', data: [] });
+				res.status(200).send({ status: 200, message: 'Exercises successfully found!', data: results });
+			});
+		});
+	});
+
+	router.route('/:id').get(async (req, res, next) => {
+		if (Number.isNaN(Number.parseInt(req.params.id))) return next(new idException());
+		pool.getConnection((error, connection) => {
+			if (error) return next(new connectionException());
+			const query = 'SELECT * FROM exercice WHERE idexercise = ?';
+			connection.query(query, Object.values({ idexercise:req.params.id }), (error, results) => {
+				connection.release();
+				if (error) return next(new queryException(error));
 				if (!results) res.status(200).send({ status: 404, message: 'Exercise unsuccessfully found!', data: [] });
 				res.status(200).send({ status: 200, message: 'Exercise successfully found!', data: results });
 			});
@@ -26,7 +41,6 @@ function ExerciseRouter() {
 		pool.getConnection((error, connection) => {
 			if (error) return next(new connectionException());
 			const data = {
-				idExercice: null,
 				name: req.body.name,
 				description: req.body.description,
 			};
@@ -41,14 +55,15 @@ function ExerciseRouter() {
 	});
 
 	router.route('/:id').put(async (req, res, next) => {
+		if (Number.isNaN(Number.parseInt(req.params.id))) return next(new idException());
 		pool.getConnection((error, connection) => {
 			if (error) return next(new connectionException());
 			const data = {
 				name: req.body.name,
 				description: req.body.description,
-				idExercice: req.params.id,
+				idexercise: req.params.id,
 			};
-			const query = 'UPDATE exercice SET name = ?, description = ? WHERE idExercice = ?';
+			const query = 'UPDATE exercice SET name = ?, description = ? WHERE idexercise = ?';
 			connection.query(query, Object.values(data), (error, results) => {
 				connection.release();
 				if (error) return next(new queryException(error));
@@ -59,13 +74,11 @@ function ExerciseRouter() {
 	});
 
 	router.route('/:id').delete(async (req, res, next) => {
+		if (Number.isNaN(Number.parseInt(req.params.id))) return next(new idException());
 		pool.getConnection((error, connection) => {
 			if (error) return next(new connectionException());
-			const data = {
-				idExercice: req.params.id,
-			};
-			const query = 'DELETE FROM exercice WHERE idExercice = ?';
-			connection.query(query, Object.values(data), (error, results) => {
+			const query = 'DELETE FROM exercice WHERE idexercise = ?';
+			connection.query(query, Object.values({ idexercise:req.params.id }), (error, results) => {
 				connection.release();
 				if (error) return next(new queryException(error));
 				if (!results) res.status(200).send({ status: 400, message: 'Exercise unsuccessfully deleted!', data: [] });
