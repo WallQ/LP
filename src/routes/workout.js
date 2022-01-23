@@ -109,8 +109,8 @@ function WorkoutRouter() {
 			connection.query(query, Object.values({ workout_idworkout:req.params.id }), (error, results) => {
 				connection.release();
 				if (error) return next(new queryException(error));
-				if (results && !results.length) return res.status(200).send({ status: 404, message: 'Workout unsuccessfully found!', data: [] });
-				return res.status(200).send({ status: 200, message: 'Workout successfully found!', data: results });
+				if (results && !results.length) return res.status(200).send({ status: 404, message: 'Workout exercises unsuccessfully found!', data: [] });
+				return res.status(200).send({ status: 200, message: 'Workout exercises successfully found!', data: results });
 			});
 		});
 	});
@@ -123,8 +123,8 @@ function WorkoutRouter() {
 			connection.query(query, Object.values({ workout_idworkout:req.params.id }), (error, results) => {
 				connection.release();
 				if (error) return next(new queryException(error));
-				if (results && !results.length) return res.status(200).send({ status: 404, message: 'Workout unsuccessfully found!', data: [] });
-				return res.status(200).send({ status: 200, message: 'Workout successfully found!', data: results });
+				if (results && !results.length) return res.status(200).send({ status: 404, message: 'Workout cards unsuccessfully found!', data: [] });
+				return res.status(200).send({ status: 200, message: 'Workout cards successfully found!', data: results });
 			});
 		});
 	});
