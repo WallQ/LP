@@ -3,6 +3,7 @@ const pool = require('../database');
 const { connectionException, queryException } = require('../exceptions/database');
 const { idException } = require('../exceptions/id');
 const verifyJWT = require('../middlewares/jwt');
+const verifyROLE = require('../middlewares/role');
 
 function ExerciseRouter() {
 	const router = express();
@@ -10,7 +11,7 @@ function ExerciseRouter() {
 	router.use(express.urlencoded({ limit: '100mb', extended: true }));
 	router.use(verifyJWT);
 
-	router.route('/').get(async (req, res, next) => {
+	router.route('/').get(verifyROLE('Admin'), async (req, res, next) => {
 		pool.getConnection((error, connection) => {
 			if (error) return next(new connectionException());
 			const query = 'SELECT * FROM exercice';
@@ -23,7 +24,7 @@ function ExerciseRouter() {
 		});
 	});
 
-	router.route('/:id').get(async (req, res, next) => {
+	router.route('/:id').get(verifyROLE('Admin'), async (req, res, next) => {
 		if (Number.isNaN(Number.parseInt(req.params.id))) return next(new idException());
 		pool.getConnection((error, connection) => {
 			if (error) return next(new connectionException());
@@ -37,7 +38,7 @@ function ExerciseRouter() {
 		});
 	});
 
-	router.route('/').post(async (req, res, next) => {
+	router.route('/').post(verifyROLE('Admin'), async (req, res, next) => {
 		pool.getConnection((error, connection) => {
 			if (error) return next(new connectionException());
 			const data = {
@@ -54,7 +55,7 @@ function ExerciseRouter() {
 		});
 	});
 
-	router.route('/:id').put(async (req, res, next) => {
+	router.route('/:id').put(verifyROLE('Admin'), async (req, res, next) => {
 		if (Number.isNaN(Number.parseInt(req.params.id))) return next(new idException());
 		pool.getConnection((error, connection) => {
 			if (error) return next(new connectionException());
@@ -73,7 +74,7 @@ function ExerciseRouter() {
 		});
 	});
 
-	router.route('/:id').delete(async (req, res, next) => {
+	router.route('/:id').delete(verifyROLE('Admin'), async (req, res, next) => {
 		if (Number.isNaN(Number.parseInt(req.params.id))) return next(new idException());
 		pool.getConnection((error, connection) => {
 			if (error) return next(new connectionException());

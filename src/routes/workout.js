@@ -3,6 +3,7 @@ const pool = require('../database');
 const { connectionException, queryException } = require('../exceptions/database');
 const { idException } = require('../exceptions/id');
 const verifyJWT = require('../middlewares/jwt');
+const verifyROLE = require('../middlewares/role');
 
 function WorkoutRouter() {
 	const router = express();
@@ -10,7 +11,7 @@ function WorkoutRouter() {
 	router.use(express.urlencoded({ limit: '100mb', extended: true }));
 	router.use(verifyJWT);
 
-	router.route('/').get(async (req, res, next) => {
+	router.route('/').get(verifyROLE('Admin', 'User'), async (req, res, next) => {
 		pool.getConnection((error, connection) => {
 			if (error) return next(new connectionException());
 			const query = 'SELECT * FROM workout';
@@ -23,7 +24,7 @@ function WorkoutRouter() {
 		});
 	});
 
-	router.route('/:id').get(async (req, res, next) => {
+	router.route('/:id').get(verifyROLE('Admin', 'User'), async (req, res, next) => {
 		if (Number.isNaN(Number.parseInt(req.params.id))) return next(new idException());
 		pool.getConnection((error, connection) => {
 			if (error) return next(new connectionException());
@@ -37,7 +38,7 @@ function WorkoutRouter() {
 		});
 	});
 
-	router.route('/name/:name').get(async (req, res, next) => {
+	router.route('/name/:name').get(verifyROLE('Admin', 'User'), async (req, res, next) => {
 		pool.getConnection((error, connection) => {
 			if (error) return next(new connectionException());
 			const query = 'SELECT * FROM workout WHERE name = ?';
@@ -50,7 +51,7 @@ function WorkoutRouter() {
 		});
 	});
 
-	router.route('/').post(async (req, res, next) => {
+	router.route('/').post(verifyROLE('Admin'), async (req, res, next) => {
 		pool.getConnection((error, connection) => {
 			if (error) return next(new connectionException());
 			const data = {
@@ -67,7 +68,7 @@ function WorkoutRouter() {
 		});
 	});
 
-	router.route('/:id').put(async (req, res, next) => {
+	router.route('/:id').put(verifyROLE('Admin'), async (req, res, next) => {
 		if (Number.isNaN(Number.parseInt(req.params.id))) return next(new idException());
 		pool.getConnection((error, connection) => {
 			if (error) return next(new connectionException());
@@ -86,7 +87,7 @@ function WorkoutRouter() {
 		});
 	});
 
-	router.route('/:id').delete(async (req, res, next) => {
+	router.route('/:id').delete(verifyROLE('Admin'), async (req, res, next) => {
 		if (Number.isNaN(Number.parseInt(req.params.id))) return next(new idException());
 		pool.getConnection((error, connection) => {
 			if (error) return next(new connectionException());
@@ -96,6 +97,34 @@ function WorkoutRouter() {
 				if (error) return next(new queryException(error));
 				if (results && results.affectedRows === 0) return res.status(200).send({ status: 400, message: 'Workout unsuccessfully deleted!', data: [] });
 				return res.status(200).send({ status: 200, message: 'Workout successfully deleted!', data: results });
+			});
+		});
+	});
+
+	router.route('/exercise/:id').get(verifyROLE('Admin', 'User'), async (req, res, next) => {
+		if (Number.isNaN(Number.parseInt(req.params.id))) return next(new idException());
+		pool.getConnection((error, connection) => {
+			if (error) return next(new connectionException());
+			const query = 'SELECT ew.nipe, e.idExercise, e.name, e.description, w.idworkout, w.imagePath, w.name FROM lp.exercise_has_workout as ew INNER JOIN lp.exercise as e ON ew.exercise_idExercise = e.idExercise INNER JOIN lp.workout as w ON ew.workout_idworkout = w.idworkout WHERE ew.workout_idworkout = ?';
+			connection.query(query, Object.values({ workout_idworkout:req.params.id }), (error, results) => {
+				connection.release();
+				if (error) return next(new queryException(error));
+				if (results && !results.length) return res.status(200).send({ status: 404, message: 'Workout unsuccessfully found!', data: [] });
+				return res.status(200).send({ status: 200, message: 'Workout successfully found!', data: results });
+			});
+		});
+	});
+
+	router.route('/card/:id').get(verifyROLE('Admin', 'User'), async (req, res, next) => {
+		if (Number.isNaN(Number.parseInt(req.params.id))) return next(new idException());
+		pool.getConnection((error, connection) => {
+			if (error) return next(new connectionException());
+			const query = 'SELECT c.idcard, c.value, c.description, c.imagePath, d.name, d.description FROM lp.card_workout as cw INNER JOIN lp.card as c ON cw.card_idcard = c.idcard INNER JOIN lp.deck as d ON c.deck_iddeck = d.iddeck WHERE cw.workout_idworkout = ? ORDER BY RAND() LIMIT 10';
+			connection.query(query, Object.values({ workout_idworkout:req.params.id }), (error, results) => {
+				connection.release();
+				if (error) return next(new queryException(error));
+				if (results && !results.length) return res.status(200).send({ status: 404, message: 'Workout unsuccessfully found!', data: [] });
+				return res.status(200).send({ status: 200, message: 'Workout successfully found!', data: results });
 			});
 		});
 	});

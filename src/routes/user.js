@@ -72,14 +72,14 @@ function UserRouter() {
 		});
 	});
 
-	router.route('/:id').put(verifyROLE('Admin','User'), async (req, res, next) => {
+	router.route('/:id').put(verifyROLE('Admin'), async (req, res, next) => {
 		if (Number.isNaN(Number.parseInt(req.params.id))) return next(new idException());
-		pool.getConnection((error, connection) => {
+		pool.getConnection(async (error, connection) => {
 			if (error) return next(new connectionException());
 			const data = {
 				name: req.body.name,
 				email: req.body.email,
-				password: req.body.password,
+				password: await bcrypt.hash(req.body.password, 10),
 				role: req.body.role,
 				phoneNumber: req.body.phone,
 				iduser: req.params.id,

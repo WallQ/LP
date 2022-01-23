@@ -37,8 +37,8 @@ function AuthRouter() {
 						connection.release();
 						if (error) return next(new queryException(error));
 						if (results && results.affectedRows === 0) return res.status(200).send({ status: 400, auth: false, path: req.originalUrl, message: 'Unsuccessfully signed up!', data: [] });
-						const token = jwt.sign({ id: results.insertId, email: data.email, role: 'User' }, 'DWDM-LP-FLG@2122', { algorithm: 'HS256' }, { expiresIn: 1800000 });
-						return res.cookie('token', token, { maxAge: 1800000, expires: new Date(Date.now() + 1800000), httpOnly: true }).status(200).send({ status: 200, auth: true, path: req.originalUrl, message: 'Successfully signed up!', data: token });
+						const token = jwt.sign({ id: results.insertId, email: data.email, role: 'User' }, 'DWDM-LP-FLG@2122', { algorithm: 'HS256' }, { expiresIn: 5400000 });
+						return res.cookie('token', token, { maxAge: 5400000, expires: new Date(Date.now() + 5400000), httpOnly: true }).status(200).send({ status: 200, auth: true, path: req.originalUrl, message: 'Successfully signed up!', data: token });
 					});
 				});
 			});
@@ -61,8 +61,8 @@ function AuthRouter() {
 					if (results && !results.length) return res.status(200).send({ status: 400, auth: false, path: req.originalUrl, message: 'Email address not registered!', data: [] });
 					const match = await bcrypt.compare(data.password, results[0].password);
 					if(!match) return res.status(200).send({ status: 400, auth: false, path: req.originalUrl, message: 'Email or password are wrong!', data: [] });
-					const token = jwt.sign({ id: results[0].iduser, email: data.email, role: results[0].role }, 'DWDM-LP-FLG@2122', { algorithm: 'HS256' }, { expiresIn: 1800000 });
-					return res.cookie('token', token, { maxAge: 1800000, expires: new Date(Date.now() + 1800000), httpOnly: true }).status(200).send({ status: 200, auth: true, path: req.originalUrl, message: 'Successfully signed in!', data: token });
+					const token = jwt.sign({ id: results[0].iduser, email: data.email, role: results[0].role }, 'DWDM-LP-FLG@2122', { algorithm: 'HS256' }, { expiresIn: 5400000 });
+					return res.cookie('token', token, { maxAge: 5400000, expires: new Date(Date.now() + 5400000), httpOnly: true }).status(200).send({ status: 200, auth: true, path: req.originalUrl, message: 'Successfully signed in!', data: token });
 				});
 			});
 		});
