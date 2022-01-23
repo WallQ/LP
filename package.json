@@ -16,7 +16,7 @@
 		"NodeJs",
 		"MySQL"
 	],
-	"author": "Sérgio",
+	"author": "Sérgio Félix",
 	"license": "MIT",
 	"devDependencies": {
 		"cross-env": "^7.0.3",
