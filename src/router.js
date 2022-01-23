@@ -10,6 +10,9 @@ const CardRoutes = require('./routes/card');
 function initialize() {
 	const api = express();
 
+	api.get('/', async (req, res, next) => {
+		return res.status(200).send('This is an evaluation project for the unit LP 👋');
+	});
 	api.use('/public', express.static('public'));
 	api.use('/user', UserRoutes());
 	api.use('/auth', AuthRoutes());
