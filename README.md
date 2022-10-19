@@ -16,14 +16,10 @@ npm install
 
 Then run the development server:
 ```bash
-npm run dev
+npm run start
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-## Deploy on GitHub Pages
-
-The easiest way to deploy your Vite app is to use the [GitHub Pages](https://pages.github.com/).
 
 ## License
 
