@@ -1,5 +1,7 @@
 # Laboratório de Projeto
 
+## Description
+
 ## Technologies
 
 [<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg" alt="NodeJS" width="64" height="64" />](https://nodejs.org/en/)
@@ -24,3 +26,5 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 ## License
 
 [MIT](https://github.com/WallQ/LP/blob/master/LICENSE)
+
+**ESTG - Escola Superior de Tecnologia e Gestão | Politécnico do Porto**
